@@ -1,0 +1,14 @@
+{
+  "memory": [
+    {"name": "hanged man"},
+    {"name": "a burning heart"},
+    {"name": "killed the fairy"}
+  ],
+  "health": 0,
+  "position": 4,
+  "inventory": [
+    {"name": "branch"},
+    {"name": "heart"},
+    {"name": "grief"}
+  ]
+}

@@ -1,0 +1,255 @@
+Index: src/main/model/map/Encounter3Man.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model.map;\r\n\r\nimport model.Player;\r\nimport model.monsters.Monster;\r\n\r\nimport java.util.Random;\r\n\r\npublic class Encounter3Man extends EncounterApp {\r\n\r\n    public Encounter3Man(Player player) {\r\n        super(player);\r\n        this.player = player;\r\n        random = new Random();\r\n    }\r\n\r\n    @Override\r\n    public void startEncounter() {\r\n        story.addStory(\"You proceed through the forest. Dry needles crunch underfoot.\\n\"\r\n                + \"The path continues for a while. The trees begin to thin out before stopping abruptly.\\n\"\r\n                + \"Ahead is a massive clearing with no fallen leaves and no grass.\\n\"\r\n                + \"The bare dirt rises in a slump before sprouting into a dying old cedar.\");\r\n        story.addStory(\"Do you \\\"approach\\\" or return \\\"south\\\"?\");\r\n    }\r\n\r\n    @Override\r\n    public void uniqueCommands(String command) {\r\n        if (this.command.equals(\"approach\")) {\r\n            approach();\r\n        } else if (this.command.equals(\"south\")) {\r\n            travel(2);\r\n        } else if (this.command.equals(\"sleep\")) {\r\n            sleep();\r\n        } else if (this.command.equals(\"look\")) {\r\n            look();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void queryCombatEnd(Monster defeatedMonster) {\r\n        //no combat encounter\r\n    }\r\n\r\n    //Effects: prints out the approach towards the dead cedar.\r\n    public void approach() {\r\n        if (!player.checkMemory(\"hanged man\")) {\r\n            firstHangedManScene();\r\n        } else if (player.checkItem(\"heart\")) {\r\n            story.addStory(\"The man is gone. All you can do is head south\");\r\n        } else if (player.checkMemory(\"a burning heart\")) {\r\n            story.addStory(\"You approach the tree and scramble up the hill.\");\r\n            story.addStory(\"\\\"Welcome back.\\\" The Hanged Man croons.\\n \"\r\n                    + \"\\\"Have we met before? You seem awfully familiar.\\\" His face extends into a grin.\\n\"\r\n                    + \"\\\"Don't be shy. Stay a while.\\\"\");\r\n            story.addStory(\"You can head \\\"south\\\" the way you came, or \\\"sleep\\\" under the tree.\");\r\n        } else {\r\n            story.addStory(\"\\\"You're back,\\\" the hanged man whistles. \\\"Have you decided to rest your legs\"\r\n                    + \" for a bit?\\\"\");\r\n        }\r\n    }\r\n\r\n    //Effects: introduces the hanged man if the player has never seen them before, this persists between deaths.\r\n    public void firstHangedManScene() {\r\n        story.addStory(\"You approach the tree. The well packed path gives way to loose dirt and mud.\\n\"\r\n                + \"As you climb up it, you're forced to pull yourself along with your hands and feet.\\n\"\r\n                + \"The tree is dry and a sickly shape, but it is absent the silver rot \"\r\n                + \"that has infected the rest of the wood.\\n\");\r\n        story.addStory(\"Suddenly, you hear a voice from above you.\\n\"\r\n                + \"It's high pitched and crackling, as if the speaker is constantly on the cusp of laughter.\\n\"\r\n                + \"A man drops down from the tree. His heads snaps downward and smashes \"\r\n                + \"against the side of the cedar.\\nYou notice his left leg is pierced through with cord.\\n\"\r\n                + \"The rest of his body dangles limply.\");\r\n        //TODO: Flesh out the rest of this dialogue.\r\n        story.addStory(\"\\\"Sleep,\\\" he whispers.\");\r\n        story.addStory(\"You can \\\"sleep\\\" or you can head south, far, far away from this place.\");\r\n        player.addMemory(\"hanged man\");\r\n    }\r\n\r\n    //Modifies: player, inventory\r\n    //Effects: add burning heart to player's inventory\r\n    public void sleep() {\r\n        if (!player.checkItem(\"heart\")) {\r\n            story.addStory(\"You sit down beneath the branches and close your eyes.\");\r\n            story.addStory(\"\\\"There's nothing wrong with taking a load off,\\\" the Hanged Man croons.\\n\"\r\n                    + \"\\\"The Buddha learned much, sleeping under a fig tree,\\\" he pauses, \"\r\n                    + \"\\\"Not to say you're the type.\\\"\\n\\\"I'll figure out something to do with you.\\\"\");\r\n            story.addStory(\"You awaken. There's a hole cut in your chest. You can see your heart beating \"\r\n                    + \"openly from it.\");\r\n            story.addStory(\"Everytime it pumps, and immense and searing pain sets your nerves on fire.\\n\"\r\n                    + \"But somehow, you can stand. You senses are sharper than they've ever been and you feel\"\r\n                    + \" an overwhelming urge to sprint towards the tree-line and set the whole forest on fire.\");\r\n            player.addItem(\"heart\");\r\n            if (!player.checkMemory(\"a burning heart\")) {\r\n                player.addMemory(\"a burning heart\");\r\n            }\r\n        } else if (player.checkItem(\"heart\")) {\r\n            story.addStory(\"You try to sleep, but the pain in your chest is too much.\");\r\n        } else if (player.checkMemory(\"a burning heart\")) {\r\n            story.addStory(\"\\\"Let's practice some deep breathing. Focus on the sound of my voice.\\\"\\n\"\r\n                    + \"You close your eyes and rest.\\n\"\r\n                    + \"\\\"Quiet now, I don't want it finding you.\\\"\");\r\n            story.addStory(\"You awaken. The heart is freed from its prison. It's time to go.\");\r\n        }\r\n    }\r\n\r\n    //Effects: prints out surroundings.\r\n    public void look() {\r\n        if (!player.checkItem(\"heart\") && !player.checkMemory(\"hanged man\")) {\r\n            story.addStory(\"The cedar is lonely amidst the clearing. It's clearly dead, but the rot\\n\"\r\n                    + \"hasn't touched it.\");\r\n        } else if (!player.checkItem(\"heart\") && player.checkMemory(\"hanged man\")) {\r\n            story.addStory(\"The cedar is lonely amidst the clearing. It's clearly dead, but the rot\\n\"\r\n                    + \"hasn't touched it. The Hanged Man dangles from the tree and chuckles at you.\");\r\n        } else {\r\n            story.addStory(\"The cedar is lonely amidst the clearing. It's clearly dead, but the rot\\n\"\r\n                    + \"hasn't touched it. The Hanged Man is nowhere to be found. It's time to go south.\");\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/model/map/Encounter3Man.java b/src/main/model/map/Encounter3Man.java
+--- a/src/main/model/map/Encounter3Man.java	(revision d0bd058e33dd32c38b8d992c2dedc1aedb9488bc)
++++ b/src/main/model/map/Encounter3Man.java	(date 1680056767196)
+@@ -1,14 +1,18 @@
+ package model.map;
+ 
+ import model.Player;
++<<<<<<< HEAD
+ import model.monsters.Monster;
++=======
++import model.Story;
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.)
+ 
+ import java.util.Random;
+ 
+ public class Encounter3Man extends EncounterApp {
+ 
+-    public Encounter3Man(Player player) {
+-        super(player);
++    public Encounter3Man(Player player, Story story) {
++        super(player, story);
+         this.player = player;
+         random = new Random();
+     }
+Index: src/main/model/map/Encounter2Fly.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model.map;\r\n\r\nimport model.Player;\r\nimport model.monsters.Monster;\r\nimport model.monsters.MonsterFly;\r\n\r\nimport java.util.Random;\r\n\r\npublic class Encounter2Fly extends EncounterApp {\r\n\r\n    public Encounter2Fly(Player player) {\r\n        super(player);\r\n        random = new Random();\r\n        this.player = player;\r\n    }\r\n\r\n    @Override\r\n    //Effects: has a 25% chance to trigger combat with a fly monster.\r\n    public void startEncounter() {\r\n        System.out.println(\"You proceed through the forest.\");\r\n        if (random.nextInt(9) >= 6) {\r\n            System.out.println(\"The buzzing sound grows louder as a decrepit human stumbles out of the forest.\\n\"\r\n                    + \"A massive fly is on their back. It vibrates and hisses at you.\");\r\n            Monster flyMonster = new MonsterFly();\r\n            loadCombat(player, flyMonster);\r\n        } else {\r\n            System.out.println(\"There is a path to your south, to your north, and to your west.\\n\"\r\n                    + \"You hear buzzing from off the path. You might be able to \\\"investigate\\\"\");\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void uniqueCommands(String command) {\r\n        if (this.command.equals(\"look\") || this.command.equals(\"look around\")\r\n                || this.command.equals(\"l\")) {\r\n            System.out.println(\"The ground is patchy and sparse. A dead tree has collapsed along the side of the road.\"\r\n                    + \"\\nThere's a buzzing sound coming from the woods. To the north you hear laughter\\n\"\r\n                    + \"To the west you hear someone crying.\");\r\n        } else if (this.command.equals(\"south\")) {\r\n            travel(1);\r\n        } else if (this.command.equals(\"north\")) {\r\n            travel(3);\r\n        } else if (this.command.equals(\"west\")) {\r\n            travel(4);\r\n        } else if (this.command.equals(\"investigate\")) {\r\n            investigate();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void queryCombatEnd(Monster defeatedMonster) {\r\n        if (defeatedMonster.getName().equals(\"fly\")) {\r\n            System.out.println(\"You collect some puss from the fly's eye socket.\");\r\n        }\r\n        System.out.println(\"There is a path to your south, to your north, and to your west.\\n\"\r\n                + \"You hear buzzing from off the path. You might be able to \\\"investigate\\\"\");\r\n    }\r\n\r\n    //Effects: creates new combat between player and the fly monster\r\n    public void investigate() {\r\n        System.out.println(\"You step off the path into the woods. It smells moldy and damp.\\n\"\r\n                + \"The buzzing sound grows louder as a decrepit human stumbles into view.\\n\"\r\n                + \"A massive fly is on their back. It vibrates and hisses at you.\");\r\n        Monster flyMonster = new MonsterFly();\r\n        loadCombat(player, flyMonster);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/model/map/Encounter2Fly.java b/src/main/model/map/Encounter2Fly.java
+--- a/src/main/model/map/Encounter2Fly.java	(revision d0bd058e33dd32c38b8d992c2dedc1aedb9488bc)
++++ b/src/main/model/map/Encounter2Fly.java	(date 1680056767196)
+@@ -1,6 +1,11 @@
+ package model.map;
+ 
++<<<<<<< HEAD
++=======
++import model.CombatApp;
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.)
+ import model.Player;
++import model.Story;
+ import model.monsters.Monster;
+ import model.monsters.MonsterFly;
+ 
+@@ -8,8 +13,8 @@
+ 
+ public class Encounter2Fly extends EncounterApp {
+ 
+-    public Encounter2Fly(Player player) {
+-        super(player);
++    public Encounter2Fly(Player player, Story story) {
++        super(player, story);
+         random = new Random();
+         this.player = player;
+     }
+Index: src/main/ui/GameApp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ui;\r\n\r\nimport model.GameModule;\r\nimport model.Player;\r\nimport model.Story;\r\nimport persistence.JsonReader;\r\nimport persistence.JsonWriter;\r\n\r\nimport java.io.IOException;\r\nimport java.util.Scanner;\r\n\r\npublic class GameApp {\r\n    protected Scanner input;\r\n    protected String command = null;\r\n    private static final String JSON_STORE = \"./data/darkwood.json\";\r\n    private JsonWriter jsonWriter;\r\n    private JsonReader jsonReader;\r\n    private Player player;\r\n    private GameModule module;\r\n    private Story story;\r\n\r\n    public GameApp() {\r\n        story = new Story();\r\n        input = new Scanner(System.in);\r\n        player = new Player();\r\n        jsonWriter = new JsonWriter(JSON_STORE);\r\n        jsonReader = new JsonReader(JSON_STORE);\r\n        titleScreen();\r\n    }\r\n\r\n    public void titleScreen() {\r\n        System.out.println(\"This place is familiar, have you been here before?\\n \"\r\n                + \"yes - return to the wood\\n \"\r\n                + \"no - wake up for the first time.\");\r\n        command = input.nextLine();\r\n        command = command.toLowerCase();\r\n        if (command.equals(\"yes\")) {\r\n            loadGame();\r\n        } else if (command.equals(\"no\")) {\r\n            newGame();\r\n        } else {\r\n            titleScreen();\r\n        }\r\n    }\r\n\r\n    public void newGame() {\r\n        module = new GameModule(player);\r\n        module.addEncounters();\r\n        player.setPosition(0);\r\n        module.getGameMap().get(0).startEncounter();\r\n    }\r\n\r\n    // MODIFIES: module\r\n    // EFFECTS: loads player from file\r\n    private void loadGame() {\r\n        try {\r\n            this.player = jsonReader.read();\r\n            int position = player.getPosition();\r\n            module = new GameModule(player);\r\n            module.addEncounters();\r\n            System.out.println(\"You wake up.\");\r\n            module.getGameMap().get(position).startEncounter();\r\n        } catch (IOException e) {\r\n            System.out.println(\"Unable to read from file: \" + JSON_STORE);\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/ui/GameApp.java b/src/main/ui/GameApp.java
+--- a/src/main/ui/GameApp.java	(revision d0bd058e33dd32c38b8d992c2dedc1aedb9488bc)
++++ b/src/main/ui/GameApp.java	(date 1680056767205)
+@@ -44,7 +44,11 @@
+     }
+ 
+     public void newGame() {
++<<<<<<< HEAD
+         module = new GameModule(player);
++=======
++        module = new Module(player, story);
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.)
+         module.addEncounters();
+         player.setPosition(0);
+         module.getGameMap().get(0).startEncounter();
+@@ -56,7 +60,11 @@
+         try {
+             this.player = jsonReader.read();
+             int position = player.getPosition();
++<<<<<<< HEAD
+             module = new GameModule(player);
++=======
++            module = new Module(player, story);
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.)
+             module.addEncounters();
+             System.out.println("You wake up.");
+             module.getGameMap().get(position).startEncounter();
+Index: src/main/model/map/EncounterApp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model.map;\r\n\r\nimport model.CombatApp;\r\nimport model.Item;\r\nimport model.GameModule;\r\nimport model.Player;\r\nimport model.Story;\r\nimport model.monsters.Monster;\r\nimport observer.Subject;\r\nimport persistence.JsonWriter;\r\n\r\nimport java.io.FileNotFoundException;\r\nimport java.util.ArrayList;\r\nimport java.util.Random;\r\nimport java.util.Scanner;\r\n\r\nimport static javax.swing.UIManager.get;\r\n\r\npublic abstract class EncounterApp extends Subject {\r\n    protected Random random;\r\n    protected Story story;\r\n    protected CombatApp combat;\r\n    protected Monster activeMonster;\r\n    protected GameModule module;\r\n    protected int timesRun;\r\n    protected boolean inCombat;\r\n    protected Player player;\r\n    protected Scanner input;\r\n    protected String command = null;\r\n    protected ArrayList<EncounterApp> map;\r\n    private static final String JSON_STORE = \"./data/darkwood.json\";\r\n    private JsonWriter jsonWriter;\r\n\r\n\r\n\r\n    //Effects: create generic encounter, establish scanner, player is passed into it so it's easier to modify.\r\n    public EncounterApp(Player player) {\r\n        jsonWriter = new JsonWriter(JSON_STORE);\r\n        this.player = player;\r\n        this.map = new ArrayList<>();\r\n        input = new Scanner(System.in);\r\n        random = new Random();\r\n        timesRun = 0;\r\n        inCombat = false;\r\n        combat = null;\r\n    }\r\n\r\n    //Effects: query the player for their next command.\r\n    public void newCommand() {\r\n        command = input.nextLine();\r\n        command = command.toLowerCase();\r\n    }\r\n\r\n    //Effects: processes most commands\r\n    public void processCommand(String command) {\r\n        if (inCombat) {\r\n            combat.runCombat(command);\r\n        } else {\r\n            uniqueCommands(command);\r\n            defaultCommands(command);\r\n        }\r\n    }\r\n\r\n    //Effects: processes all generic commands, all encounters use these.\r\n    public void defaultCommands(String command) {\r\n        if (command.equals(\"quit\") || command.equals(\"q\")) {\r\n            System.exit(0);\r\n        } else if (command.equals(\"inv\")\r\n                || command.equals(\"i\")\r\n                || command.equals(\"inventory\")) {\r\n            listInv();\r\n        } else if (command.equals(\"remember\") || command.equals(\"r\")) {\r\n            listMemory();\r\n        } else if (command.equals(\"health\") || command.equals(\"h\")) {\r\n            health();\r\n        } else if (player.checkMemory(command) || player.checkItem(command)) {\r\n            examine(command);\r\n        } else if (command.equals(\"help\")) {\r\n            help();\r\n        } else if (command.equals(\"save\")) {\r\n            saveGame();\r\n        } else {\r\n            System.out.println(\"You can't do that. Enter \\\"help\\\" for a list of commands.\");\r\n        }\r\n    }\r\n\r\n    //Effect: prints text that informs the player their general health. the actual value is slightly obfuscated.\r\n    public void health() {\r\n        if (player.getHealth() > 100) {\r\n            System.out.println(\"You have never felt better.\");\r\n        } else if (player.getHealth() == 100) {\r\n            System.out.println(\"There's not a scratch on you.\");\r\n        } else if ((100 > player.getHealth()) && (player.getHealth() >= 75)) {\r\n            System.out.println(\"You're hurt, but they haven't drawn blood.\");\r\n        } else if ((75 > player.getHealth()) && (player.getHealth() >= 50)) {\r\n            System.out.println(\"You're bleeding, but it's manageable\");\r\n        } else if ((50 > player.getHealth()) && (player.getHealth() >= 25)) {\r\n            System.out.println(\"You're covered in your own blood.\");\r\n        } else if ((25 > player.getHealth()) && (player.getHealth() >= 1)) {\r\n            System.out.println(\"You can barely stand. Blood covers your eyes.\");\r\n        } else if (player.getHealth() <= 0) {\r\n            System.out.print(\"Your soul flickers. It's about to go out unless you do something.\");\r\n        }\r\n    }\r\n\r\n    //Effects: returns list of items in your inventory\r\n    public void listInv() {\r\n        System.out.println(\"This is all you have with you:\");\r\n        if (player.getInventory().size() == 0) {\r\n            System.out.println(\"Your will to live.\");\r\n        } else {\r\n            for (Item item : player.getInventory()) {\r\n                System.out.println(item.getName());\r\n            }\r\n        }\r\n    }\r\n\r\n    //Effects: returns list of experiences in you memory.\r\n    public void listMemory() {\r\n        System.out.println(\"You remember the following\");\r\n        if (player.getMemory().size() == 0) {\r\n            System.out.println(\"Nothing, absolutely nothing.\");\r\n        } else {\r\n            for (Item experience : player.getMemory()) {\r\n                System.out.println(experience.getName());\r\n            }\r\n        }\r\n    }\r\n\r\n    //Effects: print description of given object name, otherwise, print an error message.\r\n    public void examine(String command) {\r\n        if (player.checkItem(command)) {\r\n            for (Item item : player.getInventory()) {\r\n                if (item.getName().equals(command)) {\r\n                    System.out.println(item.getDescription());\r\n                }\r\n            }\r\n        } else if (player.checkMemory(command)) {\r\n            for (Item experience : player.getMemory()) {\r\n                if (experience.getName().equals(command)) {\r\n                    System.out.println(experience.getDescription());\r\n                }\r\n            }\r\n        } else {\r\n            System.out.println(\"You can't do that. Enter \\\"help\\\" for a list of commands.\");\r\n        }\r\n    }\r\n\r\n    //Effects: print a list of generic commands.\r\n    public void help() {\r\n        System.out.println(\"quit - exit the game\");\r\n        System.out.println(\"inventory - check inventory\");\r\n        System.out.println(\"remember - recall what you can\");\r\n        System.out.println(\"health - check health\");\r\n        System.out.println(\"look - look around\");\r\n        System.out.println(\"examine - examine item in inventory\");\r\n        System.out.println(\"pickup - pickup items on the ground\");\r\n        System.out.println(\"save - save your game\");\r\n    }\r\n\r\n    //Effects: checks to see if player is dead, if so, reset the game.\r\n    public void checkDead() {\r\n        if (player.getDead()) {\r\n            resetGame();\r\n        }\r\n    }\r\n\r\n    //Modifies: player, inventory, memory\r\n    //Effects: removes all items from player that are not immortal, return them to life and to full health, then\r\n    //         moves them to the starting encounter.\r\n    public void resetGame() {\r\n        player.loseItems();\r\n        player.setHealth(Player.STARTING_HEALTH);\r\n        player.revive();\r\n        travel(0);\r\n    }\r\n\r\n    //Requires: index is greater than 0 and less than size of encounter list -1.\r\n    //Effects: runs the specified encounter and updates the player's position.\r\n    public void travel(int index) {\r\n        player.setPosition(index);\r\n        EncounterApp encounter = map.get(index);\r\n        encounter.startEncounter();\r\n    }\r\n\r\n    public void saveGame() {\r\n        try {\r\n            jsonWriter.open();\r\n            jsonWriter.write(player);\r\n            jsonWriter.close();\r\n            System.out.println(\"Saved your progress to \" + JSON_STORE);\r\n        } catch (FileNotFoundException e) {\r\n            System.out.println(\"Unable to write to file: \" + JSON_STORE);\r\n        }\r\n    }\r\n\r\n    public void loadCombat(Player player, Monster monster) {\r\n        combat = new CombatApp(player, monster, this);\r\n        setCombat(true);\r\n        combat.startCombat();\r\n    }\r\n\r\n    public void stopCombat() {\r\n        combat = null;\r\n    }\r\n\r\n    //Effects: runs the first portion of the encounter without any player interaction.\r\n    public abstract void startEncounter();\r\n\r\n    //Effects: process most commands unique to the encounter\r\n    public abstract void uniqueCommands(String command);\r\n\r\n    public void setMap(ArrayList<EncounterApp> module) {\r\n        this.map = module;\r\n    }\r\n\r\n    public void setCombat(boolean fighting) {\r\n        inCombat = fighting;\r\n    }\r\n\r\n    public abstract void queryCombatEnd(Monster defeatedMonster);\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/model/map/EncounterApp.java b/src/main/model/map/EncounterApp.java
+--- a/src/main/model/map/EncounterApp.java	(revision d0bd058e33dd32c38b8d992c2dedc1aedb9488bc)
++++ b/src/main/model/map/EncounterApp.java	(date 1680056767196)
+@@ -5,8 +5,11 @@
+ import model.GameModule;
+ import model.Player;
+ import model.Story;
++<<<<<<< HEAD
+ import model.monsters.Monster;
+ import observer.Subject;
++=======
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.)
+ import persistence.JsonWriter;
+ 
+ import java.io.FileNotFoundException;
+@@ -19,9 +22,12 @@
+ public abstract class EncounterApp extends Subject {
+     protected Random random;
+     protected Story story;
++<<<<<<< HEAD
+     protected CombatApp combat;
+     protected Monster activeMonster;
+     protected GameModule module;
++=======
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.)
+     protected int timesRun;
+     protected boolean inCombat;
+     protected Player player;
+@@ -34,7 +40,8 @@
+ 
+ 
+     //Effects: create generic encounter, establish scanner, player is passed into it so it's easier to modify.
+-    public EncounterApp(Player player) {
++    public EncounterApp(Player player, Story story) {
++        this.story = story;
+         jsonWriter = new JsonWriter(JSON_STORE);
+         this.player = player;
+         this.map = new ArrayList<>();
+Index: src/main/model/GameModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport model.map.*;\r\nimport model.map.EncounterApp;\r\n\r\nimport java.util.ArrayList;\r\n\r\npublic class GameModule {\r\n    private final ArrayList<EncounterApp> gameMap;\r\n    private static ArrayList<Item> loot;\r\n    private static ArrayList<Item> events;\r\n    protected int currentEncounter;\r\n    protected Story story;\r\n    private Player player;\r\n\r\n    //EFFECTS: Creates new module and generates all the encounters, items, and memories that will be in the game.\r\n    public GameModule(Player player) {\r\n        story = new Story();\r\n        gameMap = new ArrayList<>();\r\n        events = createEvents();\r\n        loot = createLoot();\r\n        this.player = player;\r\n    }\r\n\r\n    //MODIFIES: this, EncounterApp\r\n    //EFFECTS: creatures list of all encounters that will be in the game and passes it all encounters. this is used for\r\n    //         travelling between encounters.\r\n    public void addEncounters() {\r\n        gameMap.add(new Encounter0Starting(player));\r\n        gameMap.add(new Encounter1(player));\r\n        gameMap.add(new Encounter2Fly(player));\r\n        gameMap.add(new Encounter3Man(player));\r\n        gameMap.add(new Encounter4Fairy(player));\r\n        gameMap.add(new Encounter5King(player));\r\n        for (EncounterApp encounter : gameMap) {\r\n            encounter.setMap(gameMap);\r\n        }\r\n    }\r\n\r\n    //MODIFIES: this, loot, player\r\n    //EFFECTS: creates an index for all items that will be in the game and passes them to the player.\r\n    public static ArrayList<Item> createLoot() {\r\n        loot = new ArrayList<>();\r\n        loot.add(new Item(\"branch\",\r\n                \"A solid branch. It must have fallen from a large cedar.\\nThe base is\"\r\n                        + \" covered in silver.\",\r\n                true));\r\n        loot.add(new Item(\"heart\",\r\n                \"Your heart beats openly from your chest. It fills you with flame.\",\r\n                true));\r\n        loot.add(new Item(\"grief\",\r\n                \"The fairy's suffering weighs you down like a cloak.\",\r\n                false));\r\n        return loot;\r\n    }\r\n\r\n    //MODIFIES: events\r\n    //EFFECTS: creates an index for all memories that will be in the game.\r\n    public static ArrayList<Item> createEvents() {\r\n        events = new ArrayList<>();\r\n        events.add(new Item(\"hanged man\",\r\n                \"You've met the hanged man in the clearing.\",\r\n                false));\r\n        events.add(new Item(\"a burning heart\",\r\n                \"You remember when your heart burned openly from within you.\",\r\n                false));\r\n        events.add(new Item(\"death of the king\",\r\n                \"You have conquered the king and claimed the forest. The crown is yours.\",\r\n                true));\r\n        events.add(new Item(\"touched the crown\",\r\n                \"The ruling king that sees in another their equivalent rules nothing.\",\r\n                false));\r\n        events.add(new Item(\"killed the fairy\",\r\n                \"Could it have helped you?\",\r\n                true));\r\n        return events;\r\n    }\r\n\r\n    public ArrayList<Item> getLoot() {\r\n        return loot;\r\n    }\r\n\r\n    public ArrayList<Item> getEvents() {\r\n        return events;\r\n    }\r\n\r\n    public Player getPlayer() {\r\n        return player;\r\n    }\r\n\r\n    public ArrayList<EncounterApp> getGameMap() {\r\n        return gameMap;\r\n    }\r\n\r\n    public String getStoryString() {\r\n        return story.toString();\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/model/GameModule.java b/src/main/model/GameModule.java
+--- a/src/main/model/GameModule.java	(revision d0bd058e33dd32c38b8d992c2dedc1aedb9488bc)
++++ b/src/main/model/GameModule.java	(date 1680056767205)
+@@ -9,14 +9,23 @@
+     private final ArrayList<EncounterApp> gameMap;
+     private static ArrayList<Item> loot;
+     private static ArrayList<Item> events;
++<<<<<<< HEAD:src/main/model/GameModule.java
+     protected int currentEncounter;
++=======
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.):src/main/model/Module.java
+     protected Story story;
+     private Player player;
+ 
+     //EFFECTS: Creates new module and generates all the encounters, items, and memories that will be in the game.
++<<<<<<< HEAD:src/main/model/GameModule.java
+     public GameModule(Player player) {
+         story = new Story();
+         gameMap = new ArrayList<>();
++=======
++    public Module(Player player, Story story) {
++        this.story = story;
++        map = new ArrayList<>();
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.):src/main/model/Module.java
+         events = createEvents();
+         loot = createLoot();
+         this.player = player;
+@@ -26,6 +35,7 @@
+     //EFFECTS: creatures list of all encounters that will be in the game and passes it all encounters. this is used for
+     //         travelling between encounters.
+     public void addEncounters() {
++<<<<<<< HEAD:src/main/model/GameModule.java
+         gameMap.add(new Encounter0Starting(player));
+         gameMap.add(new Encounter1(player));
+         gameMap.add(new Encounter2Fly(player));
+@@ -34,6 +44,16 @@
+         gameMap.add(new Encounter5King(player));
+         for (EncounterApp encounter : gameMap) {
+             encounter.setMap(gameMap);
++=======
++        map.add(new Encounter0Starting(player, story));
++        map.add(new Encounter1(player, story));
++        map.add(new Encounter2Fly(player, story));
++        map.add(new Encounter3Man(player, story));
++        map.add(new Encounter4Fairy(player, story));
++        map.add(new Encounter5King(player, story));
++        for (EncounterApp encounter : map) {
++            encounter.setMap(map);
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.):src/main/model/Module.java
+         }
+     }
+ 
+Index: src/test/model/TestGameModule.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model;\r\n\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.Test;\r\nimport model.map.EncounterApp;\r\n\r\nimport java.util.ArrayList;\r\n\r\nimport static org.junit.jupiter.api.Assertions.assertEquals;\r\n\r\npublic class TestGameModule {\r\n    private GameModule testModule;\r\n\r\n    @BeforeEach\r\n    public void setup() {\r\n        testModule = new GameModule(new Player());\r\n        testModule.addEncounters();\r\n    }\r\n\r\n    @Test\r\n    public void testConstuctor() {\r\n        ArrayList<Item> testLoot = testModule.getLoot();\r\n        ArrayList<Item> testEvents = testModule.getEvents();\r\n        ArrayList<EncounterApp> testMap = testModule.getGameMap();\r\n        assertEquals(3, testLoot.size());\r\n        assertEquals(5, testEvents.size());\r\n        assertEquals(6, testMap.size());\r\n    }\r\n\r\n    @Test\r\n    public void testAddToPlayer() {\r\n        ArrayList<Item> testPlayerLoot = testModule.getPlayer().getLoot();\r\n        ArrayList<Item> testPlayerEvents = testModule.getPlayer().getEvents();\r\n        assertEquals(3, testPlayerLoot.size());\r\n        assertEquals(5, testPlayerEvents.size());\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/model/TestGameModule.java b/src/test/model/TestGameModule.java
+--- a/src/test/model/TestGameModule.java	(revision d0bd058e33dd32c38b8d992c2dedc1aedb9488bc)
++++ b/src/test/model/TestGameModule.java	(date 1680056767205)
+@@ -13,7 +13,11 @@
+ 
+     @BeforeEach
+     public void setup() {
++<<<<<<< HEAD:src/test/model/TestGameModule.java
+         testModule = new GameModule(new Player());
++=======
++        testModule = new Module(new Player(), new Story());
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.):src/test/model/TestModule.java
+         testModule.addEncounters();
+     }
+ 
+Index: src/main/model/map/Encounter0Starting.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package model.map;\r\n\r\nimport model.Player;\r\nimport model.monsters.Monster;\r\n\r\nimport java.util.Random;\r\n\r\npublic class Encounter0Starting extends EncounterApp {\r\n\r\n    public Encounter0Starting(Player player) {\r\n        super(player);\r\n        this.player = player;\r\n        random = new Random();\r\n    }\r\n\r\n    @Override\r\n    public void startEncounter() {\r\n        story.addStory(\"You wake up in a dark wood\");\r\n        story.addStory(\"There is a path to your north\");\r\n    }\r\n\r\n    @Override\r\n    public void uniqueCommands(String command) {\r\n        if (command.equals(\"north\") || command.equals(\"n\")) {\r\n            travel(2);\r\n        } else if (command.equals(\"look\") || command.equals(\"l\")) {\r\n            lookBranch();\r\n        } else if (command.equals(\"pickup\")) {\r\n            story.addStory(\"What did you want to pick up?\");\r\n            if (!player.checkItem(\"branch\")) {\r\n                story.addStory(\"branch\");\r\n            }\r\n        } else if (command.equals(\"branch\")) {\r\n            if (player.checkItem(\"branch\")) {\r\n                story.addStory(\"You can't find any more usable branches.\\n\");\r\n            }\r\n            story.addStory(\"You grab a few of the branches. Most are flimsy and bend easily.\\n\"\r\n                    + \"You think one is strong enough to use as a weapon. You discard the rest.\");\r\n            player.addItem(\"branch\");\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void queryCombatEnd(Monster defeatedMonster) {\r\n        //No combat in encounter.\r\n    }\r\n\r\n    //Effects: looks around, the branches are removed from the description once the player picks them up.\r\n    public void lookBranch() {\r\n        if (player.checkItem(\"branch\")) {\r\n            story.addStory(\"The ground is patchy and sparse.\\n\"\r\n                    + \"There is a path to your north. You hear a faint buzzing coming from it.\");\r\n        } else {\r\n            story.addStory(\"The ground is patchy and sparse. You notice some branches nearby.\\n\"\r\n                    + \"There is a path to your north. You hear a faint buzzing coming from it.\");\r\n        }\r\n    }\r\n\r\n    //Modifies: player, inventory\r\n    //Effects: lists the possible items the player can pick up, allows them to pick up a branch if they do not\r\n    //         have one already\r\n    public void pickupBranch() {\r\n\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/model/map/Encounter0Starting.java b/src/main/model/map/Encounter0Starting.java
+--- a/src/main/model/map/Encounter0Starting.java	(revision d0bd058e33dd32c38b8d992c2dedc1aedb9488bc)
++++ b/src/main/model/map/Encounter0Starting.java	(date 1680056767196)
+@@ -1,14 +1,18 @@
+ package model.map;
+ 
+ import model.Player;
++<<<<<<< HEAD
+ import model.monsters.Monster;
++=======
++import model.Story;
++>>>>>>> 9eb45e3 (Starting with Encounter, should be doable but Combat seems a little tricky.)
+ 
+ import java.util.Random;
+ 
+ public class Encounter0Starting extends EncounterApp {
+ 
+-    public Encounter0Starting(Player player) {
+-        super(player);
++    public Encounter0Starting(Player player, Story story) {
++        super(player, story);
+         this.player = player;
+         random = new Random();
+     }
